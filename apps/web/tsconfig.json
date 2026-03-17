@@ -6,7 +6,12 @@
         "name": "next"
       }
     ],
-    "declaration": false
+    "declaration": false,
+    "declarationMap": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
   },
   "include": [
     "**/*.ts",

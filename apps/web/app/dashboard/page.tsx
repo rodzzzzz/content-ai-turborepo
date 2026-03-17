@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "../../components/auth-provider";
+import { useAuth } from "../../contexts/auth-provider";
 import { authClient } from "../../lib/auth-client";
 
 export default function Dashboard() {
