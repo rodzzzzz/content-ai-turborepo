@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { TRIAL_CREDITS } from '../constants/plan-limits';
-import type { CompleteOnboardingDto } from './dto/complete-onboarding.dto';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { TRIAL_CREDITS } from '../constants/plan-limits.js';
+import type { CompleteOnboardingDto } from './dto/complete-onboarding.dto.js';
 
 @Injectable()
 export class OnboardingService {

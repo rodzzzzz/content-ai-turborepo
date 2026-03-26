@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { OnboardingController } from './onboarding.controller';
-import { OnboardingService } from './onboarding.service';
-import { PrismaModule } from '../prisma/prisma.module';
+import { OnboardingController } from './onboarding.controller.js';
+import { OnboardingService } from './onboarding.service.js';
+import { PrismaModule } from '../prisma/prisma.module.js';
 
 @Module({
   imports: [PrismaModule],

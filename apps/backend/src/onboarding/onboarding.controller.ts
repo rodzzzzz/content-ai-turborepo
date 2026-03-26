@@ -1,11 +1,8 @@
-import {
-  AuthGuard,
-  Session,
-  UserSession,
-} from '@mguay/nestjs-better-auth';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { OnboardingService } from './onboarding.service';
-import { CompleteOnboardingDto } from './dto/complete-onboarding.dto';
+import { OnboardingService } from './onboarding.service.js';
+import { CompleteOnboardingDto } from './dto/complete-onboarding.dto.js';
 
 @Controller('onboarding')
 @UseGuards(AuthGuard)

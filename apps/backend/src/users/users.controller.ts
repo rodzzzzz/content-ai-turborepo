@@ -1,9 +1,5 @@
-import {
-  AuthGuard,
-  Public,
-  Session,
-  UserSession,
-} from '@mguay/nestjs-better-auth';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import { Controller, Get, UseGuards } from '@nestjs/common';
 
 @Controller('users')

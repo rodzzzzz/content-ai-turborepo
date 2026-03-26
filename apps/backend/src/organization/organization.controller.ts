@@ -1,8 +1,5 @@
-import {
-  AuthGuard,
-  Session,
-  UserSession,
-} from '@mguay/nestjs-better-auth';
+import { AuthGuard, Session } from '@thallesp/nestjs-better-auth';
+import type { UserSession } from '@thallesp/nestjs-better-auth';
 import {
   Body,
   Controller,
@@ -13,9 +10,9 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { OrganizationService } from './organization.service';
-import { CreateOrganizationDto } from './dto/create-organization.dto';
-import { UpdateOrganizationDto } from './dto/update-organization.dto';
+import { OrganizationService } from './organization.service.js';
+import { CreateOrganizationDto } from './dto/create-organization.dto.js';
+import { UpdateOrganizationDto } from './dto/update-organization.dto.js';
 
 @Controller('organization')
 @UseGuards(AuthGuard)

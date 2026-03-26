@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { PLAN_LIMITS } from '../constants/plan-limits';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { PLAN_LIMITS } from '../constants/plan-limits.js';
 
 @Injectable()
 export class OrganizationService {

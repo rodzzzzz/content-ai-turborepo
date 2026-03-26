@@ -1,7 +1,7 @@
 import { Controller, Get, Query, Res } from '@nestjs/common';
-import { Response } from 'express';
-import { PrismaService } from '../prisma/prisma.service';
-import { ONBOARDING_REDIRECT } from './stripe.constants';
+import type { Response } from 'express';
+import { PrismaService } from '../prisma/prisma.service.js';
+import { ONBOARDING_REDIRECT } from './stripe.constants.js';
 
 @Controller('stripe')
 export class StripeController {
