@@ -15,7 +15,7 @@ import { DiscoveryStep } from './discovery-step';
 import { SuccessStep } from './success-step';
 import { onboardingSchema } from '@/lib/validations/onboarding';
 import { z } from 'zod';
-import { Form } from '@/components/ui/form';
+import { Form } from '../ui/form';
 import {
     ArrowLeftIcon,
     ArrowRightIcon,
@@ -25,30 +25,27 @@ import {
 import { onboarding } from '@/actions/onboarding';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-provider';
-import MagicBg from '@/components/magic-bg';
+import MagicBg from '../magic-bg';
 import { useOrganization } from '@/contexts/organization-context';
 
 type OnboardingFormData = z.infer<typeof onboardingSchema>;
 
 export default function Onboarding() {
     const [step, setStep] = useState<number | null>(null);
-    const { refetch, session } = useAuth();
+    const { session, refetch } = useAuth();
     const [isPending, startTransition] = useTransition();
     const { invalidateOrganizations } = useOrganization();
-
-    const userTimeZone =
-        typeof session?.user?.timeZone === 'string'
-            ? session.user.timeZone
-            : typeof Intl !== 'undefined'
-                ? Intl.DateTimeFormat().resolvedOptions().timeZone
-                : 'America/New_York';
 
     const methods = useForm<OnboardingFormData>({
         resolver: zodResolver(onboardingSchema),
         defaultValues: {
-            firstName: session?.user?.name?.split(' ')[0] || '',
-            lastName: session?.user?.name?.split(' ')[1] || '',
-            timeZone: userTimeZone,
+            firstName: session?.user.name?.split(' ')[0] || '',
+            lastName: session?.user.name?.split(' ')[1] || '',
+            timeZone:
+                session?.user?.timeZone ??
+                (typeof Intl !== 'undefined'
+                    ? Intl.DateTimeFormat().resolvedOptions().timeZone
+                    : 'America/New_York'),
             organizationName: '',
             organizationSize: '',
             organizationType: '',
@@ -122,8 +119,6 @@ export default function Onboarding() {
                 }
 
                 if (data.success) {
-                    // Refetch session so client has fresh data (organizationId, isOnboardingCompleted)
-                    // Backend customSession fetches from DB; refetch picks up the new values
                     await refetch();
 
                     // Invalidate organizations query cache and clear sessionStorage
@@ -167,12 +162,13 @@ export default function Onboarding() {
                                 return (
                                     <motion.div
                                         key={index}
-                                        className={`h-2 w-2 rounded-full ${index < step
-                                            ? 'bg-primary'
-                                            : index === step
+                                        className={`h-2 w-2 rounded-full ${
+                                            index < step
                                                 ? 'bg-primary'
-                                                : 'bg-gray-300'
-                                            }`}
+                                                : index === step
+                                                  ? 'bg-primary'
+                                                  : 'bg-gray-300'
+                                        }`}
                                         initial={false}
                                         animate={{
                                             scale: index === step ? 1.3 : 1,
@@ -213,7 +209,7 @@ export default function Onboarding() {
                                             }}
                                             className="flex min-h-[450px] flex-col"
                                         >
-                                            {steps[step]?.component}
+                                            {steps[step].component}
                                         </motion.div>
                                     </AnimatePresence>
 

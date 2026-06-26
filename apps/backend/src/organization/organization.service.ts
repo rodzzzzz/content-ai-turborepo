@@ -78,4 +78,28 @@ export class OrganizationService {
       return { error: 'Organization not found or access denied' };
     }
   }
+
+  /** Marks one org as default (session reads default via Better Auth customSession). */
+  async setDefault(id: string, userId: string) {
+    const org = await this.prisma.organization.findFirst({
+      where: { id, ownerId: userId },
+      select: { id: true },
+    });
+    if (!org) {
+      return { error: 'Organization not found or access denied' };
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.organization.updateMany({
+        where: { ownerId: userId },
+        data: { isDefault: false },
+      }),
+      this.prisma.organization.update({
+        where: { id },
+        data: { isDefault: true },
+      }),
+    ]);
+
+    return { success: true };
+  }
 }

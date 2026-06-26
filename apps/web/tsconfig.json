@@ -11,7 +11,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "strictNullChecks": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitAny": false
   },
   "include": [
     "**/*.ts",

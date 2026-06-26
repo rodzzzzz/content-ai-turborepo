@@ -6,7 +6,7 @@ import * as ScrollAreaPrimitive from '@radix-ui/react-scroll-area';
 import { cn } from '@/lib/utils';
 
 const ScrollArea = React.forwardRef<
-    React.ComponentRef<typeof ScrollAreaPrimitive.Root>,
+    React.ElementRef<typeof ScrollAreaPrimitive.Root>,
     React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & {
         isFullHeight?: boolean;
         isFullWidth?: boolean;
@@ -30,8 +30,8 @@ const ScrollArea = React.forwardRef<
             <ScrollAreaPrimitive.Viewport
                 className={cn(
                     'h-full w-full rounded-[inherit]',
-                    isFullHeight && 'relative *:h-full',
-                    isFullWidth && 'relative *:w-full',
+                    isFullHeight && 'relative [&>*]:h-full',
+                    isFullWidth && 'relative [&>*]:w-full',
                 )}
             >
                 {children}
@@ -44,7 +44,7 @@ const ScrollArea = React.forwardRef<
 ScrollArea.displayName = ScrollAreaPrimitive.Root.displayName;
 
 const ScrollBar = React.forwardRef<
-    React.ComponentRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
+    React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
     React.ComponentPropsWithoutRef<
         typeof ScrollAreaPrimitive.ScrollAreaScrollbar
     >
@@ -55,9 +55,9 @@ const ScrollBar = React.forwardRef<
         className={cn(
             'z-50 flex touch-none select-none transition-colors',
             orientation === 'vertical' &&
-            'h-full w-2.5 border-l border-l-transparent p-px',
+                'h-full w-2.5 border-l border-l-transparent p-[1px]',
             orientation === 'horizontal' &&
-            'h-2.5 flex-col border-t border-t-transparent p-px',
+                'h-2.5 flex-col border-t border-t-transparent p-[1px]',
             className,
         )}
         {...props}

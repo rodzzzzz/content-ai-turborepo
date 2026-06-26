@@ -11,10 +11,10 @@ import {
 } from '@/components/ui/select';
 import { onboardingSchema } from '@/lib/validations/onboarding';
 import { z } from 'zod';
-import { FormMessage } from '@/components/ui/form';
-import { FormControl } from '@/components/ui/form';
-import { FormItem, FormLabel } from '@/components/ui/form';
-import { FormField } from '@/components/ui/form';
+import { FormMessage } from '../ui/form';
+import { FormControl } from '../ui/form';
+import { FormItem, FormLabel } from '../ui/form';
+import { FormField } from '../ui/form';
 
 type OnboardingFormData = z.infer<typeof onboardingSchema>;
 

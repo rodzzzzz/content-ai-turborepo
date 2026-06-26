@@ -2,10 +2,31 @@ import { Controller, Get, Query, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ONBOARDING_REDIRECT } from './stripe.constants.js';
+import { BillingService } from '../billing/billing.service.js';
 
 @Controller('stripe')
 export class StripeController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly billingService: BillingService,
+  ) {}
+
+  @Get('credit-purchase-success')
+  async creditPurchaseSuccess(
+    @Query('session_id') sessionId: string,
+    @Res() res: Response,
+  ) {
+    const webUrl = process.env.WEB_URL ?? 'http://localhost:3001';
+    if (!sessionId) {
+      return res.redirect(`${webUrl}/subscription`);
+    }
+    try {
+      await this.billingService.handleCreditPurchaseSuccess(sessionId);
+    } catch (error) {
+      console.error('Credit purchase success handler:', error);
+    }
+    return res.redirect(`${webUrl}/subscription`);
+  }
 
   @Get('checkout')
   async handleCheckoutSuccess(

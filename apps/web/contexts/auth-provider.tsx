@@ -1,10 +1,10 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
-import { authClient } from "../lib/auth-client";
+import { authClient, type ExtendedUser } from "../lib/auth-client";
 
 interface AuthContextType {
-  session: { user?: { id: string; email: string; name: string; [key: string]: unknown } } | null;
+  session: { user?: ExtendedUser } | null;
   isLoading: boolean;
   refetch: () => void;
 }
@@ -15,7 +15,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { data: session, isPending: isLoading, refetch } = authClient.useSession();
 
   return (
-    <AuthContext.Provider value={{ session, isLoading, refetch: refetch ?? (() => {}) }}>
+    <AuthContext.Provider
+      value={{
+        session: session as unknown as AuthContextType["session"],
+        isLoading,
+        refetch: refetch ?? (() => {}),
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

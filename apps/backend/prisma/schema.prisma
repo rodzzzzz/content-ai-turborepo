@@ -1,10 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
 }
 
 model User {
@@ -17,13 +19,13 @@ model User {
   updatedAt             DateTime               @updatedAt @map("updated_at")
   role                  UserRole               @default(USER)
   isTwoFactorEnabled    Boolean                @default(false) @map("is_two_factor_enabled")
-  twoFactorEnabled      Boolean                @default(false) @map("two_factor_enabled") // Better Auth 2FA plugin
+  twoFactorEnabled      Boolean                @default(false) @map("two_factor_enabled")
   isOnboardingCompleted Boolean                @default(false) @map("is_onboarding_completed")
   timeZone              String                 @default("America/New_York") @map("time_zone")
   setupSteps            Json?                  @map("setup_steps")
   trialEndDate          DateTime?              @map("trial_end_date")
   trialStartDate        DateTime?              @map("trial_start_date")
-  password              String?   // Legacy: for migrated content-ai users (PBKDF2)
+  password              String?
   sessions              Session[]
   accounts              Account[]
   organizations         Organization[]
@@ -31,6 +33,19 @@ model User {
   subscription          Subscription?
   twoFactorConfirmation TwoFactorConfirmation?
   twoFactor             TwoFactor?
+
+  brandKits             BrandKit[]
+  campaigns             Campaign[]
+  facebookAnalytics     FacebookAnalytics[]
+  files                 File[]
+  folders               Folder[]
+  imageChats            ImageChat[]
+  integrations          Integration[]
+  knowledgeBases      KnowledgeBase[]
+  linkedinAnalytics     LinkedinAnalytics[]
+  personality           Personality?
+  schedules             Schedule[]
+  twitterAnalytics      TwitterAnalytics[]
 
   @@map("user")
 }
@@ -136,6 +151,19 @@ model Organization {
   ownerId   String   @map("owner_id")
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
+  brandKit          BrandKit?
+  campaigns         Campaign[]
+  facebookAnalytics FacebookAnalytics[]
+  files             File[]
+  folders           Folder[]
+  imageChats        ImageChat[]
+  integrations      Integration[]
+  knowledgeBases    KnowledgeBase[]
+  linkedinAnalytics LinkedinAnalytics[]
+  personalities     Personality[]
+  schedules         Schedule[]
+  twitterAnalytics  TwitterAnalytics[]
+
   @@index([ownerId])
   @@map("organization")
 }
@@ -171,11 +199,352 @@ model Subscription {
   status                       String
   stripeSubscriptionScheduleId String?  @map("stripe_subscription_schedule_id")
   user                         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usageRecords                 SubscriptionUsage[]
 
   @@map("subscription")
+}
+
+model Integration {
+  id                String   @id @default(cuid())
+  type              String
+  provider          String
+  providerAccountId String   @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  account_name      String?
+  account_type      String?  @map("account_type")
+  page_id           String?  @map("page_id")
+  page_name         String?  @map("page_name")
+  page_access_token String?  @map("page_access_token")
+  userId            String   @map("user_id")
+  organizationId    String   @map("organization_id")
+  profile_picture   String?  @map("profile_picture")
+  username          String?
+  organization      Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  facebookAnalytics FacebookAnalytics[]
+  linkedinAnalytics LinkedinAnalytics[]
+  schedules         Schedule[]
+  twitterAnalytics  TwitterAnalytics[]
+
+  @@unique([provider, providerAccountId])
+  @@map("integration")
+}
+
+model File {
+  id             String       @id @default(cuid())
+  name           String
+  uploadStatus   UploadStatus @default(PENDING) @map("upload_status")
+  url            String
+  key            String
+  fileType       String       @map("file_type")
+  fileSize       Int          @map("file_size")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  folderId       String?      @map("folder_id")
+  userId         String       @map("user_id")
+  organizationId String       @map("organization_id")
+  folder         Folder?      @relation(fields: [folderId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("file")
+}
+
+model Folder {
+  id             String       @id @default(cuid())
+  name           String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  userId         String       @map("user_id")
+  organizationId String       @map("organization_id")
+  files          File[]
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("folder")
+}
+
+model Schedule {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  platform       Platform
+  content        String
+  date           DateTime
+  status         Status       @default(DRAFT)
+  mediaUrl       String[]     @map("media_url")
+  integrationId  String       @map("integration_id")
+  userId         String       @map("user_id")
+  organizationId String       @map("organization_id")
+  postId         String?      @map("post_id")
+  integration    Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([integrationId, userId])
+  @@map("schedule")
+}
+
+model KnowledgeBase {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+  name           String
+  description    String?
+  vectorIds      String[]     @map("vector_ids")
+  tableData      Json?        @map("table_data")
+  tableSchema    Json?        @map("table_schema")
+  userId         String       @map("user_id")
+  organizationId String       @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("knowledge_base")
+}
+
+model FacebookAnalytics {
+  id               String       @id @default(cuid())
+  date             DateTime
+  followerCount    Int          @map("follower_count")
+  followerGrowth   Int          @map("follower_growth")
+  reactions        Json?
+  totalEngagements Int          @map("total_engagements")
+  engagementRate   Float        @map("engagement_rate")
+  reach            Int          @default(0)
+  impressions      Int          @default(0)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  integrationId    String       @map("integration_id")
+  userId           String       @map("user_id")
+  organizationId   String       @map("organization_id")
+  integration      Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([date, integrationId])
+  @@index([integrationId, userId, date])
+  @@index([date])
+  @@map("facebook_analytics")
+}
+
+model TwitterAnalytics {
+  id               String       @id @default(cuid())
+  date             DateTime
+  followerCount    Int          @map("follower_count")
+  followerGrowth   Int          @map("follower_growth")
+  favorites        Int          @default(0)
+  retweets         Int          @default(0)
+  replies          Int          @default(0)
+  views            Int          @default(0)
+  totalEngagements Int          @map("total_engagements")
+  engagementRate   Float        @map("engagement_rate")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  integrationId    String       @map("integration_id")
+  userId           String       @map("user_id")
+  organizationId   String       @map("organization_id")
+  integration      Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([date, integrationId])
+  @@index([integrationId, userId, date])
+  @@index([date])
+  @@map("twitter_analytics")
+}
+
+model LinkedinAnalytics {
+  id               String       @id @default(cuid())
+  date             DateTime
+  followerCount    Int          @map("follower_count")
+  followerGrowth   Int          @map("follower_growth")
+  likes            Int          @default(0)
+  comments         Int          @default(0)
+  shares           Int          @default(0)
+  clicks           Int          @default(0)
+  totalEngagements Int          @map("total_engagements")
+  engagementRate   Float        @map("engagement_rate")
+  impressions      Int          @default(0)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  integrationId    String       @map("integration_id")
+  userId           String       @map("user_id")
+  organizationId   String       @map("organization_id")
+  integration      Integration  @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user             User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([date, integrationId])
+  @@index([integrationId, userId, date])
+  @@index([date])
+  @@map("linkedin_analytics")
+}
+
+model Campaign {
+  id             String            @id @default(cuid())
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  name           String
+  description    String?
+  platforms      Platform[]
+  userId         String            @map("user_id")
+  organizationId String            @map("organization_id")
+  initialMessage Json?             @map("initial_message")
+  campaign       Json?
+  diffRegistry   Json[]            @map("diff_registry")
+  organization   Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       CampaignMessage[]
+
+  @@index([userId])
+  @@map("campaign")
+}
+
+model CampaignMessage {
+  id          String   @id @default(cuid())
+  role        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  parts       Json?
+  attachments Json?
+  campaignId  String   @map("campaign_id")
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId])
+  @@map("campaign_message")
+}
+
+model ImageChat {
+  id             String             @id @default(cuid())
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  name           String?
+  userId         String             @map("user_id")
+  organizationId String             @map("organization_id")
+  organization   Organization       @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user           User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages       ImageChatMessage[]
+
+  @@index([userId])
+  @@map("image_chat")
+}
+
+model ImageChatMessage {
+  id          String    @id @default(cuid())
+  role        String
+  content     String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  parts       Json?
+  attachments Json?
+  imageChatId String    @map("image_chat_id")
+  imageChat   ImageChat @relation(fields: [imageChatId], references: [id], onDelete: Cascade)
+
+  @@index([imageChatId])
+  @@map("image_chat_message")
+}
+
+model Personality {
+  id                     String       @id @default(cuid())
+  vectorIds              String[]     @map("vector_ids")
+  faqVectorIds           String[]     @map("faq_vector_ids")
+  personality            String?
+  writingStyle           String?      @map("writing_style")
+  additionalInstructions String?      @map("additional_instructions")
+  interests              Json?
+  emoji                  Boolean      @default(false)
+  temperature            Int          @default(30)
+  twitter                String?
+  linkedin               String?
+  facebook               String?
+  createdAt              DateTime     @default(now()) @map("created_at")
+  updatedAt              DateTime     @updatedAt @map("updated_at")
+  userId                 String       @unique @map("user_id")
+  organizationId         String       @map("organization_id")
+  organization           Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  user                   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("personality")
+}
+
+model SubscriptionUsage {
+  id             String       @id @default(cuid())
+  feature        String
+  quantity       Int
+  timestamp      DateTime     @default(now())
+  metadata       Json?
+  subscriptionId String       @map("subscription_id")
+  costInDollars  Int          @map("cost_in_dollars")
+  subscription   Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([subscriptionId, feature])
+  @@index([timestamp])
+  @@map("subscription_usage")
+}
+
+model AIPricing {
+  id         String   @id @default(cuid())
+  feature    String
+  model      String?
+  usageType  String
+  unit       String
+  unitAmount Int
+  unitPrice  Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([feature, usageType, model, unit])
+  @@index([feature, usageType, model])
+  @@map("ai_pricing")
+}
+
+model BrandKit {
+  id               String   @id @default(cuid())
+  primaryColor     String?  @map("primary_color")
+  additionalColors Json?    @map("additional_colors")
+  font             String?  @map("font")
+  logo             String?  @map("logo")
+  icon             String?  @map("icon")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+  userId           String   @map("user_id")
+  organizationId   String   @unique @map("organization_id")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization     Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([organizationId])
+  @@map("brand_kit")
 }
 
 enum UserRole {
   ADMIN
   USER
+}
+
+enum UploadStatus {
+  PENDING
+  PROCESSING
+  FAILED
+  SUCCESS
+}
+
+enum Platform {
+  TWITTER
+  LINKEDIN
+  FACEBOOK
+}
+
+enum Status {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
 }

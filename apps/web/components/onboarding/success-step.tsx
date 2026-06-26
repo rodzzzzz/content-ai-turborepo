@@ -6,7 +6,7 @@ import { CheckIcon } from 'lucide-react';
 
 import { useConfetti } from '@/hooks/use-confetti';
 import { useRouter } from 'next/navigation';
-import { DEFAULT_LOGIN_REDIRECT } from '@/lib/routes';
+import { DEFAULT_LOGIN_REDIRECT } from '@/routes';
 import { Button } from '@/components/ui/button';
 
 export function SuccessStep() {
@@ -66,7 +66,7 @@ export function SuccessStep() {
                 }}
                 className="relative"
             >
-                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-linear-to-br from-green-100 to-blue-100 shadow-lg">
+                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-green-100 to-blue-100 shadow-lg">
                     <CheckIcon className="h-14 w-14 text-green-600" />
                 </div>
             </motion.div>
@@ -92,7 +92,7 @@ export function SuccessStep() {
                 transition={{ delay: 0.8 }}
                 className="flex flex-col items-center gap-4 pt-6"
             >
-                <div className="rounded-full bg-linear-to-r from-green-100 to-blue-100 px-6 py-3">
+                <div className="rounded-full bg-gradient-to-r from-green-100 to-blue-100 px-6 py-3">
                     <p className="text-sm font-medium text-green-600">
                         Redirecting to dashboard in {countdown} seconds...
                     </p>

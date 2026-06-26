@@ -44,6 +44,13 @@ export class OrganizationController {
     return this.organizationService.create(dto.name.trim(), userId);
   }
 
+  @Patch(':id/default')
+  async setDefault(@Session() session: UserSession, @Param('id') id: string) {
+    const userId = session?.user?.id;
+    if (!userId) return { error: 'Unauthorized' };
+    return this.organizationService.setDefault(id, userId);
+  }
+
   @Patch(':id')
   async update(
     @Session() session: UserSession,

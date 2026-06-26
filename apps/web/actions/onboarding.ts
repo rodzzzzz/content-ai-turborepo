@@ -1,41 +1,51 @@
 'use server';
 
-import { headers } from 'next/headers';
+import { getServerApiConfig } from '@/lib/server-api';
 import { onboardingSchema } from '@/lib/validations/onboarding';
-import type { z } from 'zod';
+import { z } from 'zod';
 
-export async function onboarding(values: z.infer<typeof onboardingSchema>) {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3000';
-  const headersList = await headers();
-  const cookie = headersList.get('cookie') ?? '';
+export const onboarding = async (values: z.infer<typeof onboardingSchema>) => {
+  const parsed = onboardingSchema.safeParse(values);
+  if (!parsed.success) {
+    return { error: 'Invalid fields' };
+  }
 
-  const res = await fetch(`${apiUrl}/api/onboarding/complete`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      cookie,
-    },
-    body: JSON.stringify(values),
-  });
+  const v = parsed.data;
 
-  const data = await res.json();
+  try {
+    const { apiUrl, cookie } = await getServerApiConfig();
+    const res = await fetch(`${apiUrl}/api/onboarding/complete`, {
+      method: 'POST',
+      headers: {
+        cookie,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName: v.firstName,
+        lastName: v.lastName,
+        timeZone: v.timeZone,
+        organizationName: v.organizationName,
+        organizationSize: v.organizationSize,
+        organizationType: v.organizationType,
+        discoveryChannel: v.discoveryChannel,
+      }),
+      cache: 'no-store',
+    });
 
-  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { error: data?.error ?? 'Something went wrong' };
+    }
+    if (data.error) {
+      return { error: data.error };
+    }
+
     return {
-      error: data?.error ?? 'Failed to complete onboarding',
+      success: 'User onboarding has been completed',
+      organizationId: data.organizationId as string,
     };
+  } catch (error) {
+    console.error(error);
+    return { error: 'Something went wrong' };
   }
-
-  if (data.error) {
-    return { error: data.error };
-  }
-
-  if (data.organizationId) {
-    return {
-      success: true,
-      organizationId: data.organizationId,
-    };
-  }
-
-  return { error: 'Invalid response from server' };
-}
+};

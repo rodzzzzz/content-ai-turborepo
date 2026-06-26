@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-    'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2',
+    'inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
     {
         variants: {
             variant: {
@@ -30,7 +30,7 @@ const badgeVariants = cva(
 
 export interface BadgeProps
     extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> { }
+        VariantProps<typeof badgeVariants> {}
 
 function Badge({ className, variant, ...props }: BadgeProps) {
     return (
@@ -56,7 +56,7 @@ const magicBadgeVariants = cva(
 
 export interface MagicBadgeProps
     extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof magicBadgeVariants> { }
+        VariantProps<typeof magicBadgeVariants> {}
 
 function MagicBadge({ className, variant, ...props }: MagicBadgeProps) {
     return (
@@ -64,7 +64,7 @@ function MagicBadge({ className, variant, ...props }: MagicBadgeProps) {
             <div className={cn(magicBadgeVariants({ variant }), className)} />
 
             <div
-                className="relative inline-flex items-center gap-2 rounded-md border-0 bg-white px-2.5 py-0.5 text-xs font-semibold transition-colors before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-magic before:p-px focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                className="relative inline-flex items-center gap-2 rounded-md border-0 bg-white px-2.5 py-0.5 text-xs font-semibold transition-colors before:absolute before:inset-0 before:-z-10 before:rounded-md before:bg-magic before:p-[1px] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 {...props}
             />
         </div>

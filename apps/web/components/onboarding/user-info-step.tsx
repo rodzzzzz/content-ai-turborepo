@@ -10,7 +10,7 @@ import {
     FormItem,
     FormLabel,
     FormMessage,
-} from '@/components/ui/form';
+} from '../ui/form';
 import { Button } from '@/components/ui/button';
 import {
     Popover,
@@ -116,15 +116,15 @@ export function UserInfoStep({ control }: UserInfoStepProps) {
                                             className={cn(
                                                 'h-12 w-full justify-between',
                                                 !field.value &&
-                                                'text-muted-foreground',
+                                                    'text-muted-foreground',
                                             )}
                                         >
                                             {field.value
                                                 ? timeZones.find(
-                                                    (tz) =>
-                                                        tz.value ===
-                                                        field.value,
-                                                )?.label
+                                                      (tz) =>
+                                                          tz.value ===
+                                                          field.value,
+                                                  )?.label
                                                 : 'Select time zone'}
                                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                         </Button>

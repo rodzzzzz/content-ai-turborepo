@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { MagicButton } from '@/components/ui/button';
+import { MagicButton } from '../ui/button';
 import { ArrowRightIcon } from 'lucide-react';
 
 export function WelcomeStep({ setStep }: { setStep: (step: number) => void }) {

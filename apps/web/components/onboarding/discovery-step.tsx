@@ -69,8 +69,8 @@ export function DiscoveryStep({ control }: DiscoveryStepProps) {
                                             className={cn(
                                                 'flex cursor-pointer items-center space-x-3 rounded-md border border-muted-foreground/80 p-4 font-medium text-foreground/70 transition-all hover:border-muted-foreground hover:bg-muted/50',
                                                 discoveryMethod ===
-                                                option.value &&
-                                                'bg-primary text-primary-foreground hover:bg-primary/90',
+                                                    option.value &&
+                                                    'bg-primary text-primary-foreground hover:bg-primary/90',
                                             )}
                                         >
                                             <RadioGroupItem
